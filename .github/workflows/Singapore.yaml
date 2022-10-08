@@ -8,35 +8,54 @@ on:
       Token:
         description: "Fill with your ngrok token"
         required: true
-        
+      Region:
+        description: "available: EU, US, JP, AP, SA"
+        default: "AP"
+        required: true
+        type: choice
+        options:
+          - AP
+          - EU
+          - US
+          - JP
+          - SA
+
+env:
+  AUTH: ${{ github.event.inputs.Token }}
+  REGION: ${{ github.event.inputs.Region }}
 jobs:
   build:
-
     runs-on: windows-latest
     steps:
-    - run: |
-        Set-Content authtoken.txt "ENTER_YOUR_NGROK_AUTHTOKEN_HERE" #enter your ngrok authtoken from https://dashboard.ngrok.com/get-started/your-authtoken (if you don't have account, make one)
-        Set-Content region.txt "ENTER_REGION" #enter region for the Ngrok servers (available: EU, US, JP, AP, SA) write one of them with capital letters
-    - run: |
+    - name: Preparing Environment
+      run: |
         Invoke-WebRequest https://raw.githubusercontent.com/tman10001/Windows2019RDP-AP/main/ngrok.exe -OutFile ngrok.exe
         Invoke-WebRequest https://raw.githubusercontent.com/tman10001/Windows2019RDP-US/main/Files/nssm.exe -OutFile nssm.exe
-    - run: | 
+        echo "${{ env.AUTH }}" > authtoken.txt
+        echo "${{ env.REGION }}" > region.txt
+        
+    - name: Copy Environment
+      run: | 
         copy nssm.exe C:\Windows\System32
         copy ngrok.exe C:\Windows\System32
         copy authtoken.txt C:\Windows\System32
         copy region.txt C:\Windows\System32
-    - run: |
+    - name: Setup Auth Environment
+      run: |
         $authtoken = Get-Content authtoken.txt
         .\ngrok.exe authtoken $authtoken
-    - run: |
+    - name: Setup Region Environment
+      run: |
         $region = Get-Content region.txt
         Invoke-WebRequest https://raw.githubusercontent.com/bEmcho-cyber/files/main/NGROK-$region.bat -Outfile NGROK-$region.bat
         Invoke-WebRequest https://raw.githubusercontent.com/bEmcho-cyber/files/main/NGROK-CHECK.bat -Outfile NGROK-CHECK.bat
         Invoke-WebRequest https://raw.githubusercontent.com/bEmcho-cyber/files/main/loop.bat -Outfile loop.bat
-    - run: |
+    - name: Run Tunnel Service
+      run: |
         $region = Get-Content region.txt
         cmd /c NGROK-$region.bat
-    - run: |
+    - name: Start Remote Desktop
+      run: |
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
