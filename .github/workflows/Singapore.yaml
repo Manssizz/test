@@ -1,14 +1,18 @@
-version: 2.1 
+name: Development
 
-orbs:
-  win: circleci/windows@2.2.0
-
+#on: [push, workflow_dispatch]
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      Token:
+        description: "Fill with your ngrok token"
+        required: true
+        
 jobs:
-  build: 
-    executor:
-      name: win/default 
-      size: "medium" 
-    
+  build:
+
+    runs-on: windows-latest
     steps:
     - run: |
         Set-Content authtoken.txt "ENTER_YOUR_NGROK_AUTHTOKEN_HERE" #enter your ngrok authtoken from https://dashboard.ngrok.com/get-started/your-authtoken (if you don't have account, make one)
