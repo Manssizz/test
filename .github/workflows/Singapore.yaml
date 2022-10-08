@@ -1,4 +1,4 @@
-name: Development
+name: Singapore
 
 #on: [push, workflow_dispatch]
 on:
