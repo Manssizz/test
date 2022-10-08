@@ -2,7 +2,6 @@ name: Singapore
 
 #on: [push, workflow_dispatch]
 on:
-  push:
   repository_dispatch:
   workflow_dispatch:
     inputs:
@@ -46,9 +45,7 @@ jobs:
     - name: Setup Auth Environment
       run: |
         $authtoken = Get-Content authtoken.txt
-        .\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
-      env:
-        NGROK_AUTH_TOKEN: ${{ github.event.inputs.Token }}
+        .\ngrok.exe authtoken $authtoken
         
     - name: Setup Region Environment
       run: |
