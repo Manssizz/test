@@ -2,7 +2,8 @@ name: Singapore
 
 #on: [push, workflow_dispatch]
 on:
-  repository_dispatch:
+  push:
+#  repository_dispatch:
   workflow_dispatch:
     inputs:
       Token:
