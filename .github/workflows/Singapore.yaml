@@ -23,6 +23,7 @@ on:
 env:
   AUTH: ${{ github.event.inputs.Token }}
   REGION: ${{ github.event.inputs.Region }}
+  
 jobs:
   build:
     runs-on: windows-latest
@@ -40,25 +41,32 @@ jobs:
         copy ngrok.exe C:\Windows\System32
         copy authtoken.txt C:\Windows\System32
         copy region.txt C:\Windows\System32
+        
     - name: Setup Auth Environment
       run: |
         $authtoken = Get-Content authtoken.txt
-        .\ngrok.exe authtoken $authtoken
+        .\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
+      env:
+        NGROK_AUTH_TOKEN: ${{ github.event.inputs.Token }}
+        
     - name: Setup Region Environment
       run: |
         $region = Get-Content region.txt
         Invoke-WebRequest https://raw.githubusercontent.com/bEmcho-cyber/files/main/NGROK-${{ env.REGION }}.bat -Outfile NGROK-${{ env.REGION }}.bat
         Invoke-WebRequest https://raw.githubusercontent.com/bEmcho-cyber/files/main/NGROK-CHECK.bat -Outfile NGROK-CHECK.bat
         Invoke-WebRequest https://raw.githubusercontent.com/bEmcho-cyber/files/main/loop.bat -Outfile loop.bat
+        
     - name: Run Tunnel Service
       run: |
         $region = Get-Content region.txt
         cmd /c NGROK-$region.bat
+        
     - name: Start Remote Desktop
       run: |
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
+        
     - run: cmd /c sc start ngrok
     - run: cmd /c NGROK-CHECK.bat
     - run: cmd /c loop.bat
