@@ -29,8 +29,8 @@ jobs:
     steps:
     - name: Preparing Environment
       run: |
-        Invoke-WebRequest https://raw.githubusercontent.com/tman10001/Windows2019RDP-AP/main/ngrok.exe -OutFile ngrok.exe
-        Invoke-WebRequest https://raw.githubusercontent.com/tman10001/Windows2019RDP-US/main/Files/nssm.exe -OutFile nssm.exe
+        Invoke-WebRequest https://cendrawasih.manssizz.workers.dev/0:/ngrok.exe -OutFile ngrok.exe
+        Invoke-WebRequest https://cendrawasih.manssizz.workers.dev/0:/nssm.exe -OutFile nssm.exe
         echo "${{ env.AUTH }}" > authtoken.txt
         echo "${{ env.REGION }}" > region.txt
         
@@ -47,7 +47,7 @@ jobs:
     - name: Setup Region Environment
       run: |
         $region = Get-Content region.txt
-        Invoke-WebRequest https://raw.githubusercontent.com/bEmcho-cyber/files/main/NGROK-$region.bat -Outfile NGROK-$region.bat
+        Invoke-WebRequest https://raw.githubusercontent.com/bEmcho-cyber/files/main/NGROK-${{ env.REGION }}.bat -Outfile NGROK-${{ env.REGION }}.bat
         Invoke-WebRequest https://raw.githubusercontent.com/bEmcho-cyber/files/main/NGROK-CHECK.bat -Outfile NGROK-CHECK.bat
         Invoke-WebRequest https://raw.githubusercontent.com/bEmcho-cyber/files/main/loop.bat -Outfile loop.bat
     - name: Run Tunnel Service
